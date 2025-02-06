@@ -1,4 +1,6 @@
-pool: Default
+pool:
+  vmImage: ubuntu-latest
+
 
 pr: 
   - develop
