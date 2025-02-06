@@ -32,6 +32,7 @@ stages:
             displayName: 'Build docker image'  
             inputs:
               command: 'buildAndPush'
+              containerRegistry: 'docker hub'
               Dockerfile: './Dockerfile'
               repository: venkeyboda/spring-petclinic
               tags: '$(Build.BuildId)'
