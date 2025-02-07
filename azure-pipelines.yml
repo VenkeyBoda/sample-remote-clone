@@ -17,7 +17,7 @@ stages:
       - job: Build
         displayName: 'Building and Testing'
         steps:  
-        
+
         - task: JavaToolInstaller@0
           displayName: 'Install Java 17'
           inputs:
@@ -32,6 +32,8 @@ stages:
             goals: 'clean package'
             testResultsFiles: '**/surefire-reports/TEST-*.xml'
             publishJUnitResults: true
+            javaHomeOption: 'JDKVersion'
+            jdkArchitectureOption: 'x64'
         
         - task: CopyFiles@2
           inputs:
