@@ -25,6 +25,11 @@ stages:
             jdkArchitecture: 'x64'
             jdkSource: 'PreInstalled'
 
+        - script: |
+            echo "JAVA_HOME: $JAVA_HOME"
+            java -version
+          displayName: 'Verify Java Version'    
+
         - task: Maven@4
           displayName: 'build and publish the maven code'
           inputs:
