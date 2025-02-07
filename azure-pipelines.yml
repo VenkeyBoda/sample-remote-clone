@@ -26,6 +26,9 @@ stages:
         - script: trivy --version
           displayName: 'Check Trivy version'
 
+        - script: |
+            trivy image -o trivy-report.xml ***/spc:132
+          displayName: 'Run Trivy scan'  
 
         - task: Maven@4
           displayName: 'build and publish the maven code'
