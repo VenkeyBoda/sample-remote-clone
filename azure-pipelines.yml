@@ -1,3 +1,6 @@
+trigger:
+  - develop
+
 pool:
   vmImage: ubuntu-latest
 
@@ -14,6 +17,14 @@ stages:
       - job: Build
         displayName: 'Building and Testing'
         steps:  
+        
+        - task: JavaToolInstaller@0
+          displayName: 'Install Java 17'
+          inputs:
+            versionSpec: '17'
+            jdkArchitecture: 'x64'
+            jdkSource: 'PreInstalled'
+
         - task: Maven@4
           displayName: 'build and publish the maven code'
           inputs:
@@ -21,7 +32,7 @@ stages:
             goals: 'clean package'
             testResultsFiles: '**/surefire-reports/TEST-*.xml'
             publishJUnitResults: true
-      
+        
         - task: CopyFiles@2
           inputs:
             contents: '**/*.jar'
@@ -39,7 +50,7 @@ stages:
             Dockerfile: './Dockerfile'
             repository: $(dockerImagerepo)
             tags: |
-             $(dockerImagetag)
+              $(dockerImagetag)
 
         - task: CmdLine@2
           displayName: 'scannig image '
