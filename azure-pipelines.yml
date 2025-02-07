@@ -18,17 +18,17 @@ stages:
         displayName: 'Building and Testing'
         steps:  
 
-        - task: JavaToolInstaller@0
-          displayName: 'Install Java 17'
-          inputs:
-            versionSpec: '17'
-            jdkArchitecture: 'x64'
-            jdkSource: 'PreInstalled'
+        # - task: JavaToolInstaller@0
+        #   displayName: 'Install Java 17'
+        #   inputs:
+        #     versionSpec: '17'
+        #     jdkArchitecture: 'x64'
+        #     jdkSource: 'PreInstalled'
 
-        - script: |
-            echo "JAVA_HOME: $JAVA_HOME"
-            java -version
-          displayName: 'Verify Java Version'    
+        # - script: |
+        #     echo "JAVA_HOME: $JAVA_HOME"
+        #     java -version
+        #   displayName: 'Verify Java Version'    
 
         - task: Maven@4
           displayName: 'build and publish the maven code'
@@ -38,6 +38,7 @@ stages:
             testResultsFiles: '**/surefire-reports/TEST-*.xml'
             publishJUnitResults: true
             javaHomeOption: 'JDKVersion'
+            jdkVersionOption: '1.17'
             jdkArchitectureOption: 'x64'
         
         - task: CopyFiles@2
