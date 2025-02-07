@@ -18,17 +18,15 @@ stages:
         displayName: 'Building and Testing'
         steps:  
         - script: |
-            sudo apt-get install rpm
-            wget https://github.com/aquasecurity/trivy/releases/download/v0.9.1/trivy_0.9.1_Linux-64bit.deb
-            sudo dpkg -i trivy_0.9.1_Linux-64bit.deb
+           sudo apt-get install wget apt-transport-https gnupg lsb-release -y
+            wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+            echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
+            sudo apt-get update
+            sudo apt-get install trivy -y  
           displayName: 'Install Trivy'  
         
         - script: trivy --version
-          displayName: 'Check Trivy version'
-
-        - script: |
-            trivy image -o trivy-report.xml ***/spc:132
-          displayName: 'Run Trivy scan'  
+          displayName: 'Check Trivy version'  
 
         - task: Maven@4
           displayName: 'build and publish the maven code'
