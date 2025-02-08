@@ -1,14 +1,20 @@
-FROM maven:3.9-eclipse-temurin-17 AS builder
-COPY . /spc
-WORKDIR /spc
-RUN mvn package
+FROM maven:3.9.7-eclipse-temurin-17 AS builder
+RUN git clone https://github.com/spring-projects/spring-petclinic.git
+RUN cd spring-petclinic && mvn clean package
 
-FROM eclipse-temurin:17-alpine
-LABEL org="spc build" author="venkat"
-ARG USERNAME=spc
-RUN apk add --no-cache bash
-RUN adduser -D -h /apps -s /bin/bash/ ${USERNAME}
-USER ${USERNAME}
-COPY --from=builder --chown={USERNAME}:{USERNAME} /spc/target/spring-petclinic-3.4.0-SNAPSHOT.jar /apps/spring-petclinic-3.4.0-SNAPSHOT.jar
-WORKDIR /apps
+
+FROM amazoncorretto:17-alpine-jdk
+LABEL author="venkat"
+LABEL purpose="project"
+ARG USER="devuser"
+ARG GROUP="dev"
+ARG WORKDIR="/spc"
+ARG SOURCE="/spring-petclinic/target/spring-petclinic-3.4.0-SNAPSHOT.jar"
+ARG DEST="/spc/spring-petclinic.jar"
+# Create a new user and group
+RUN addgroup -S ${GROUP} && adduser -S ${USER} -G ${GROUP}
+USER ${USER}
+WORKDIR ${WORKDIR}
+COPY --from=builder --chown=${USER}:${GROUP} ${SOURCE} ${DEST}
 EXPOSE 8080
+CMD ["java", "-jar", "spring-petclinic.jar"]
