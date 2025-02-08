@@ -1,8 +1,4 @@
-trigger:
-  - develop
-
-pool:
-  vmImage: ubuntu-latest
+pool: Default
 
 pr: 
   - develop
