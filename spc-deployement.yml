@@ -26,7 +26,6 @@ spec:
               memory: 64M
           ports:
             - containerPort: 8080
-
           livenessProbe: 
             failureThreshold: 3
             httpGet:
