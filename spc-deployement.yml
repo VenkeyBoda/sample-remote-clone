@@ -1,19 +1,14 @@
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: ReplicaSet
 metadata:
   name: example-deploy
 spec:
   minReadySeconds: 5
-  replicas: 4
+  replicas: 3
   selector:
     matchLabels: 
       app: spring
-  strategy: 
-    type: RollingUpdate
-    rollingUpdate: 
-      maxSurge: 25%
-      maxUnavailable: 25%
   template:
     metadata:
       labels: 
@@ -35,14 +30,14 @@ spec:
           livenessProbe: 
             failureThreshold: 3
             httpGet:
-              path: /actuator/health
+              path: /
               port: 8080
             initialDelaySeconds: 60
             periodSeconds: 10
           readinessProbe: 
             failureThreshold: 3
             httpGet:
-              path: /actuator/health
+              path: /
               port: 8080
             initialDelaySeconds: 60
             periodSeconds: 10         
@@ -55,9 +50,9 @@ metadata:
 spec:
   selector:  
     app: spring
-
-  type: NodePort
+  type: LoadBalancer
   ports: 
     - port: 8080
       targetPort: 8080
+      protocol: TCP
 
