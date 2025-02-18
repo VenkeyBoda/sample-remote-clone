@@ -1,6 +1,6 @@
 ---
 apiVersion: apps/v1
-kind: ReplicaSet
+kind: Deployment
 metadata:
   name: example-deploy
 spec:
@@ -9,6 +9,10 @@ spec:
   selector:
     matchLabels: 
       app: spring
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 5 
   template:
     metadata:
       labels: 
