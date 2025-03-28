@@ -1,0 +1,74 @@
+pool: Default
+
+pr: 
+  - develop
+
+variables:
+  dockerImagerepo: 'venkeyboda/spc'
+  dockerImagetag:  '$(Build.BuildId)' 
+
+stages:
+  - stage: CI
+    jobs:
+      - job: Build
+        displayName: 'Building and Testing'
+        steps:  
+        - script: |
+           sudo apt-get install wget apt-transport-https gnupg lsb-release -y
+            wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+            echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | sudo tee -a /etc/apt/sources.list.d/trivy.list
+            sudo apt-get update
+            sudo apt-get install trivy -y  
+          displayName: 'Install Trivy'  
+        
+        - script: trivy --version
+          displayName: 'Check Trivy version'  
+
+        - task: Maven@4
+          displayName: 'build and publish the maven code'
+          inputs:
+            mavenPomFile: pom.xml
+            goals: 'clean package'
+            testResultsFiles: '**/surefire-reports/TEST-*.xml'
+            publishJUnitResults: true
+            
+        - task: CopyFiles@2
+          inputs:
+            contents: '**/*.jar'
+            targetFolder: '$(Build.ArtifactStagingDirectory)'
+
+        - task: PublishBuildArtifacts@1
+          inputs:
+            pathToPublish: '$(Build.ArtifactStagingDirectory)'
+            artifactName: drop
+
+        - task: Docker@2
+          displayName: 'Build docker image'  
+          inputs:
+            command: 'build'
+            Dockerfile: './Dockerfile'
+            repository: $(dockerImagerepo)
+            tags: |
+              $(dockerImagetag)
+        
+        - task: CmdLine@2
+          displayName: 'scannig image '
+          inputs:
+            script: |
+              trivy image $(dockerImagerepo):$(dockerImagetag) -o trivy-report.xml
+
+        - task: PublishPipelineArtifact@1
+          displayName: 'Publish Trivy Report'
+          inputs:
+            targetPath: 'trivy-report.xml'
+            artifact: 'TrivyReport'
+
+        - task: Docker@2
+          displayName: 'pushing the docker image'  
+          inputs:
+            command: 'push'
+            containerRegistry: 'DOCKER_HUB'
+            repository: $(dockerImagerepo)
+            tags: |
+              $(dockerImagetag)        
+
